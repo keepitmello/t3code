@@ -1683,6 +1683,7 @@ export function NewTaskDraftScreen(props: {
                         emphasized
                         iconNode={
                           <ProviderIcon
+                            modelSlug={flow.selectedModelOption?.selection.model}
                             provider={flow.selectedModelOption?.providerDriver}
                             size={16}
                           />

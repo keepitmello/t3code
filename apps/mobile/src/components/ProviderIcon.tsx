@@ -4,9 +4,12 @@ import { View } from "react-native";
 import { providerInstanceInitials } from "@t3tools/client-runtime/state/provider-instance-display";
 import { useAppearancePreferences } from "../features/settings/appearance/AppearancePreferencesProvider";
 import { AppText as Text } from "./AppText";
+import { resolveProviderGlyph } from "./providerGlyph";
 
 type ProviderIconProps = {
   readonly provider: string | null | undefined;
+  /** Slug of the model this icon stands for, when it labels a model and not an instance. */
+  readonly modelSlug?: string | null | undefined;
   readonly size?: number;
 };
 
@@ -15,8 +18,9 @@ export function ProviderIcon(props: ProviderIconProps) {
   const isDarkMode = themeAppearance === "dark";
   const size = props.size ?? 16;
   const mono = isDarkMode ? "#e5e5e5" : "#171717";
+  const glyph = resolveProviderGlyph({ driver: props.provider, modelSlug: props.modelSlug });
 
-  if (props.provider?.trim().toLowerCase() === "antigravity") {
+  if (glyph === "antigravity") {
     return (
       <Image
         source={require("../../assets/antigravity.png")}
@@ -26,7 +30,7 @@ export function ProviderIcon(props: ProviderIconProps) {
     );
   }
 
-  if (props.provider === "claudeAgent") {
+  if (glyph === "claude") {
     return (
       <Svg width={size} height={size} viewBox="0 0 256 257" fill="none">
         <Path
@@ -37,7 +41,7 @@ export function ProviderIcon(props: ProviderIconProps) {
     );
   }
 
-  if (props.provider === "grok") {
+  if (glyph === "grok") {
     const fill = isDarkMode ? "#F5F5F5" : "#0F0F0F";
     return (
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -53,7 +57,7 @@ export function ProviderIcon(props: ProviderIconProps) {
     );
   }
 
-  if (props.provider === "cursor") {
+  if (glyph === "cursor") {
     return (
       <Svg width={size} height={size} viewBox="0 0 466.73 532.09" fill="none">
         <Path
@@ -64,7 +68,7 @@ export function ProviderIcon(props: ProviderIconProps) {
     );
   }
 
-  if (props.provider === "opencode") {
+  if (glyph === "opencode") {
     return (
       <Svg width={size} height={size} viewBox="0 0 32 40" fill="none">
         <Path d="M24 32H8V16H24V32Z" fill={isDarkMode ? "#4B4646" : "#CFCECD"} />
@@ -73,7 +77,10 @@ export function ProviderIcon(props: ProviderIconProps) {
     );
   }
 
-  // codex (and unknown drivers)
+  if (glyph !== "codex") {
+    return null;
+  }
+
   return (
     <Svg width={size} height={size} viewBox="100 100 411 411" fill="none">
       <Path
@@ -101,10 +108,29 @@ export function ProviderInstanceIcon(props: {
   readonly showBadge?: boolean;
   readonly surfaceColor: string;
 }) {
+  const size = props.size ?? 16;
+  const hasGlyph = resolveProviderGlyph({ driver: props.provider }) !== null;
+
   return (
     <View style={{ position: "relative" }}>
       <View style={{ opacity: 0.6 }}>
-        <ProviderIcon provider={props.provider} size={props.size} />
+        {hasGlyph ? (
+          <ProviderIcon provider={props.provider} size={size} />
+        ) : (
+          <Text
+            className="text-foreground-muted"
+            style={{
+              width: size,
+              height: size,
+              fontSize: Math.max(9, Math.round(size * 0.55)),
+              fontWeight: "600",
+              lineHeight: size,
+              textAlign: "center",
+            }}
+          >
+            {providerInstanceInitials(props.displayName)}
+          </Text>
+        )}
       </View>
       {props.showBadge ? (
         <View
