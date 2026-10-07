@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { View } from "react-native";
 import { parseMarkdownWithOptions } from "react-native-nitro-markdown/headless";
+import { markdownWithTableBoundaries } from "./markdownTableBoundaries";
 
 import {
   nativeMarkdownChunkSpacing,
@@ -51,7 +52,7 @@ export function SelectableMarkdownText({
   marginBottom = 0,
 }: SelectableMarkdownTextProps) {
   const chunks = useMemo(() => {
-    const parsedDocument = parseMarkdownWithOptions(markdown, {
+    const parsedDocument = parseMarkdownWithOptions(markdownWithTableBoundaries(markdown), {
       gfm: true,
       html: true,
       math: false,
